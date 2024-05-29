@@ -9,6 +9,9 @@ import java.util.Properties;
 
 public class RisingWaveConnect {
 
+    // true for queries 1-3, false for 4-6
+    private static final boolean QUERY_RESULT_FORMAT1 = false;
+
     public static void main (String arg[]) throws SQLException{
         String url = "jdbc:postgresql://localhost:4566/dev";
         Properties props = new Properties();
@@ -17,52 +20,34 @@ public class RisingWaveConnect {
         props.setProperty("ssl", "false");
         Connection conn = DriverManager.getConnection(url, props);
 
-        String sqlQuery =
+        String sqlQuery1 =
                 """
-                        CREATE TABLE exam_scores (
-                                  score_id int,
-                                  exam_id int,
-                                  student_id int,
-                                  score real,
-                                  exam_date date
-                                );
+                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                                FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
                 """
                 ;
 
         String sqlQuery2 =
                 """
-                        INSERT INTO exam_scores (score_id, exam_id, student_id, score, exam_date)
-                                VALUES
-                                  (1, 101, 1001, 85.5, '2022-01-10'),
-                                  (2, 101, 1002, 92.0, '2022-01-10'),
-                                  (3, 101, 1003, 78.5, '2022-01-10'),
-                                  (4, 102, 1001, 91.2, '2022-02-15'),
-                                  (12, 102, 1003, 88.9, '2022-02-15');
+                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                                FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
                 """
                 ;
 
         String sqlQuery3 =
                 """
-                        CREATE SOURCE stressStream (timestamp timestamp, id int, status varchar, stressLevel int)
-                        WITH (
-                           connector = 'kafka',
-                           topic = 'stress',
-                           properties.bootstrap.server = '10.56.117.15:9092',
-                           scan.startup.mode = 'latest'
-                        ) FORMAT PLAIN ENCODE CSV (
-                           without_header = 'true',
-                           delimiter = ','
-                        );
+                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                                FROM TUMBLE (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
                 """
                 ;
 
         String sqlQuery4 =
-                """
-                        SELECT * FROM stressStream;
-                """
-                ;
-
-        String sqlQuery5 =
                 """
                         SELECT window_start, window_end, id, max(stressLevel) as max_stress
                         FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
@@ -71,18 +56,42 @@ public class RisingWaveConnect {
                 """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery5); //Define a query and pass it to a PreparedStatement object.
+        String sqlQuery5 =
+                """
+                        SELECT window_start, window_end, id, max(stressLevel) as max_stress
+                        FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery6 =
+                """
+                        SELECT window_start, window_end, id, max(stressLevel) as max_stress
+                        FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        PreparedStatement st = conn.prepareStatement(sqlQuery6); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
             String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
             String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
-            String id = String.valueOf(rs.getInt("id"));
-            String maxStress = String.valueOf(rs.getInt("max_stress"));
-            String l = windowStart + ',' + windowEnd + ',' + id + ',' + maxStress;
+            String l = windowStart + ',' + windowEnd + ',';
+            if (QUERY_RESULT_FORMAT1){
+                String avgStress = String.valueOf(rs.getInt("avg_stress"));
+                l = l + avgStress;
+            } else {
+                String id = String.valueOf(rs.getInt("id"));
+                String maxStress = String.valueOf(rs.getInt("max_stress"));
+                l = l +  id + ',' + maxStress;
+            }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("output.csv",true);
+                FileWriter csvWriter = new FileWriter("output6.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
@@ -91,8 +100,6 @@ public class RisingWaveConnect {
                 System.out.println("An error occurred while writing to the file: " + e.getMessage());
             }
         }
-
-        
         conn.close();
     }
 }
