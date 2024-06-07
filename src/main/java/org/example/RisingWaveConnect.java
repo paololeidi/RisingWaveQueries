@@ -11,6 +11,7 @@ public class RisingWaveConnect {
 
     // true for queries 1-3, false for 4-6
     private static final boolean QUERY_RESULT_FORMAT1 = false;
+    private static final boolean QUERY_RESULT_FORMAT_JOIN = true;
 
     public static void main (String arg[]) throws SQLException{
         String url = "jdbc:postgresql://localhost:4566/dev";
@@ -74,24 +75,46 @@ public class RisingWaveConnect {
                 """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery6); //Define a query and pass it to a PreparedStatement object.
+
+        String sqlQuery7 =
+                """
+                        SELECT s.id as id, s.timestamp as stressTs, w.timestamp as weightTs, s.status as status, s.stressLevel as stressLevel, w.timestamp as weightTS, w.weight as weight
+                        FROM stressStream s JOIN weightStream w
+                        ON s.id = w.id AND w.timestamp between s.timestamp and s.timestamp + INTERVAL '10' SECOND;
+                """
+                ;
+
+        PreparedStatement st = conn.prepareStatement(sqlQuery7); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
-            String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
-            String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
-            String l = windowStart + ',' + windowEnd + ',';
+
+            String l = "";
             if (QUERY_RESULT_FORMAT1){
+                String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
+                String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
+                l = windowStart + ',' + windowEnd + ',';
                 String avgStress = String.valueOf(rs.getInt("avg_stress"));
                 l = l + avgStress;
+            } else if (QUERY_RESULT_FORMAT_JOIN){
+                String stressTs = rs.getTimestamp("stressTs").toString().replace(".0","").replace(":00","");
+                String id = String.valueOf(rs.getInt("id")).replace(".0","").replace(":00","");
+                String stressLevel = String.valueOf(rs.getInt("stressLevel")).replace(".0","").replace(":00","");
+                String status = rs.getString("status");
+                String weightTS = rs.getTimestamp("weightTS").toString().replace(".0","").replace(":00","");
+                String weight = String.valueOf(rs.getDouble("weight")).replace(".0","").replace(":00","");
+                l= stressTs + ',' + id + ',' + stressLevel + ',' + status + ',' + weightTS + ',' + weight;
             } else {
+                String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
+                String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
+                l = windowStart + ',' + windowEnd + ',';
                 String id = String.valueOf(rs.getInt("id"));
                 String maxStress = String.valueOf(rs.getInt("max_stress"));
                 l = l +  id + ',' + maxStress;
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("output6.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/join.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
