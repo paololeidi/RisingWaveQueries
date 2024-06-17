@@ -12,3 +12,7 @@ docker run -it --add-host host.docker.internal:host-gateway postgres bin/bash
 
 ### in postgre container start cli
 psql -h host.docker.internal -p 4566 -d dev -U root
+
+### Create streams
+
+### Run RisingWaveConnect file

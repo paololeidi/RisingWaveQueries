@@ -19,13 +19,3 @@ CREATE SOURCE weightStream (timestamp timestamp, id int, weight double)
                            without_header = 'true',
                            delimiter = ','
                         );
-
-SELECT window_start, window_end, avg(stressLevel)
-FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
-GROUP BY window_start, window_end
-ORDER BY window_start ASC;
-
-
-SELECT *
-FROM stressStream s JOIN weightStream w
-ON s.id = w.id AND w.timestamp between s.timestamp and s.timestamp + INTERVAL '10' SECOND;
