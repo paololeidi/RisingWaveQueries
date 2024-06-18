@@ -103,7 +103,7 @@ public class RisingWaveConnect {
                 String status = rs.getString("status");
                 String weightTS = rs.getTimestamp("weightTS").toString().replace(".0","").replace(":00","");
                 String weight = String.valueOf(rs.getDouble("weight"));
-                l= stressTs + ',' + id + ',' + stressLevel + ',' + status + ',' + weightTS + ',' + weight;
+                l= stressTs + ',' + id + ',' + status + ',' + stressLevel + ',' + weightTS + ',' + weight;
             } else {
                 String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
