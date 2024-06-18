@@ -10,8 +10,8 @@ import java.util.Properties;
 public class RisingWaveConnect {
 
     // true for queries 1-3, false for 4-6
-    private static final boolean QUERY_RESULT_FORMAT1 = false;
-    private static final boolean QUERY_RESULT_FORMAT_JOIN = true;
+    private static final boolean QUERY_RESULT_FORMAT1 = true;
+    private static final boolean QUERY_RESULT_FORMAT_JOIN = false;
 
     public static void main (String arg[]) throws SQLException{
         String url = "jdbc:postgresql://localhost:4566/dev";
@@ -23,7 +23,7 @@ public class RisingWaveConnect {
 
         String sqlQuery1 =
                 """
-                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                        SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
@@ -32,7 +32,7 @@ public class RisingWaveConnect {
 
         String sqlQuery2 =
                 """
-                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                        SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
@@ -41,7 +41,7 @@ public class RisingWaveConnect {
 
         String sqlQuery3 =
                 """
-                        SELECT window_start, window_end, avg(stressLevel) as avg_stress
+                        SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM TUMBLE (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
@@ -84,7 +84,7 @@ public class RisingWaveConnect {
                 """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery7); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery3); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -94,7 +94,7 @@ public class RisingWaveConnect {
                 String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
                 l = windowStart + ',' + windowEnd + ',';
-                String avgStress = String.valueOf(rs.getInt("avg_stress"));
+                String avgStress = String.valueOf(rs.getInt("max_stress"));
                 l = l + avgStress;
             } else if (QUERY_RESULT_FORMAT_JOIN){
                 String stressTs = rs.getTimestamp("stressTs").toString().replace(".0","").replace(":00","");
@@ -114,7 +114,7 @@ public class RisingWaveConnect {
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/join.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output3.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
