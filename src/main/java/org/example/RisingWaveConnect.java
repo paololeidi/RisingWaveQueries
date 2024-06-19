@@ -80,7 +80,7 @@ public class RisingWaveConnect {
                 """
                         SELECT s.id as id, s.timestamp as stressTs, w.timestamp as weightTs, s.status as status, s.stressLevel as stressLevel, w.timestamp as weightTS, w.weight as weight
                         FROM stressStream s JOIN weightStream w
-                        ON s.id = w.id AND w.timestamp between s.timestamp - INTERVAL '5' SECONDS and s.timestamp + INTERVAL '5' SECONDS;
+                        ON s.id = w.id AND w.timestamp between s.timestamp - INTERVAL '5' SECOND and s.timestamp + INTERVAL '5' SECOND;
                 """
                 ;
 
