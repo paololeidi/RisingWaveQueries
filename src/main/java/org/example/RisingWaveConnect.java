@@ -42,7 +42,7 @@ public class RisingWaveConnect {
         String sqlQuery3 =
                 """
                         SELECT window_start, window_end, max(stressLevel) as max_stress
-                                FROM TUMBLE (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                                FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
                 """
