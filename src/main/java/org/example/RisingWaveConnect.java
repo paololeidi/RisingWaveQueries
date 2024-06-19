@@ -10,8 +10,8 @@ import java.util.Properties;
 public class RisingWaveConnect {
 
     // true for queries 1-3, false for 4-6
-    private static final boolean QUERY_RESULT_FORMAT1 = false;
-    private static final boolean QUERY_RESULT_FORMAT_JOIN = true;
+    private static final boolean QUERY_RESULT_FORMAT1 = true;
+    private static final boolean QUERY_RESULT_FORMAT_JOIN = false;
 
     public static void main (String arg[]) throws SQLException{
         String url = "jdbc:postgresql://localhost:4566/dev";
@@ -84,7 +84,7 @@ public class RisingWaveConnect {
                 """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery7); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery3); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -114,7 +114,7 @@ public class RisingWaveConnect {
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/join.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output3.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
