@@ -25,8 +25,7 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                                GROUP BY window_start, window_end;
                 """
                 ;
 
@@ -34,8 +33,7 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                                GROUP BY window_start, window_end;
                 """
                 ;
 
@@ -43,8 +41,7 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, max(stressLevel) as max_stress
                                 FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                                GROUP BY window_start, window_end;
                 """
                 ;
 
@@ -52,8 +49,7 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, id, max(stressLevel) as max_stress
                         FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        GROUP BY window_start, window_end, id;
                 """
                 ;
 
@@ -61,8 +57,7 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, id, max(stressLevel) as max_stress
                         FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        GROUP BY window_start, window_end, id;
                 """
                 ;
 
@@ -70,17 +65,24 @@ public class RisingWaveConnect {
                 """
                         SELECT window_start, window_end, id, max(stressLevel) as max_stress
                         FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        GROUP BY window_start, window_end, id;
                 """
                 ;
 
 
         String sqlQuery7 =
                 """
-                        SELECT s.id as id, s.timestamp as stressTs, w.timestamp as weightTs, s.status as status, s.stressLevel as stressLevel, w.timestamp as weightTS, w.weight as weight
+                        SELECT
+                            s.id as id,
+                            s.timestamp as stressTs,
+                            w.timestamp as weightTs,
+                            s.status as status,
+                            s.stressLevel as stressLevel,
+                            w.timestamp as weightTS,
+                            w.weight as weight
                         FROM stressStream s JOIN weightStream w
-                        ON s.id = w.id AND w.timestamp between s.timestamp - INTERVAL '5' SECOND and s.timestamp + INTERVAL '5' SECOND;
+                        ON s.id = w.id AND
+                        w.timestamp between s.timestamp - INTERVAL '5' SECOND and s.timestamp + INTERVAL '5' SECOND;
                 """
                 ;
 
