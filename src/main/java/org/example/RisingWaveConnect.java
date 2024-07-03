@@ -75,8 +75,170 @@ public class RisingWaveConnect {
                 """
                 ;
 
-
         String sqlQuery7 =
+                """
+                        SELECT window_start, window_end, min(stressLevel) as min_stress
+                                FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery8 =
+                """
+                        SELECT window_start, window_end, min(stressLevel) as min_stress
+                                FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery9 =
+                """
+                        SELECT window_start, window_end, min(stressLevel) as min_stress
+                                FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery10 =
+                """
+                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
+                        FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery11 =
+                """
+                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
+                        FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery12 =
+                """
+                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
+                        FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery13 =
+                """
+                        SELECT window_start, window_end, avg(weight) as avg_weight
+                                FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery14 =
+                """
+                        SELECT window_start, window_end, avg(weight) as avg_weight
+                                FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery15 =
+                """
+                        SELECT window_start, window_end, avg(weight) as avg_weight
+                                FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery16 =
+                """
+                        SELECT window_start, window_end, id, avg(weight) as avg_weight
+                        FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery17 =
+                """
+                        SELECT window_start, window_end, id, avg(weight) as avg_weight
+                        FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery18 =
+                """
+                        SELECT window_start, window_end, id, avg(weight) as avg_weight
+                        FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery19 =
+                """
+                        SELECT window_start, window_end, count(*) as numberOfEvents
+                                FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery20 =
+                """
+                        SELECT window_start, window_end, count(*) as numberOfEvents
+                                FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery21 =
+                """
+                        SELECT window_start, window_end, count(*) as numberOfEvents
+                                FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery22 =
+                """
+                        SELECT window_start, window_end, id, count(*) as numberOfEvents
+                        FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery23 =
+                """
+                        SELECT window_start, window_end, id, count(*) as numberOfEvents
+                        FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery24 =
+                """
+                        SELECT window_start, window_end, id, count(*) as numberOfEvents
+                        FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+
+        String sqlQueryJoin =
                 """
                         SELECT s.id as id, s.timestamp as stressTs, w.timestamp as weightTs, s.status as status, s.stressLevel as stressLevel, w.timestamp as weightTS, w.weight as weight
                         FROM stressStream s JOIN weightStream w
@@ -84,7 +246,7 @@ public class RisingWaveConnect {
                 """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery3); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery24); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -94,7 +256,7 @@ public class RisingWaveConnect {
                 String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
                 l = windowStart + ',' + windowEnd + ',';
-                String avgStress = String.valueOf(rs.getInt("max_stress"));
+                String avgStress = String.valueOf(rs.getInt("numberOfEvents"));
                 l = l + avgStress;
             } else if (QUERY_RESULT_FORMAT_JOIN){
                 String stressTs = rs.getTimestamp("stressTs").toString().replace(".0","").replace(":00","");
@@ -109,12 +271,12 @@ public class RisingWaveConnect {
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
                 l = windowStart + ',' + windowEnd + ',';
                 String id = String.valueOf(rs.getInt("id"));
-                String maxStress = String.valueOf(rs.getInt("max_stress"));
+                String maxStress = String.valueOf(rs.getInt("numberOfEvents"));
                 l = l +  id + ',' + maxStress;
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/output3.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output24.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
