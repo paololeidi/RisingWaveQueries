@@ -50,5 +50,5 @@ delimiter = ','
 
 ### 9. Run StreamGenerator class once
 
-### 8. Run RisingWaveConnect file
+### 10. Run RisingWaveConnect file
 RisingWave APIs will read the content of the topic from beginning and generate the output file right away
