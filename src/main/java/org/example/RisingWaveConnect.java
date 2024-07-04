@@ -10,7 +10,7 @@ import java.util.Properties;
 public class RisingWaveConnect {
 
     // true for queries 1-3, false for 4-6
-    private static final boolean QUERY_RESULT_FORMAT1 = true;
+    private static final boolean QUERY_RESULT_FORMAT1 = false;
     private static final boolean QUERY_RESULT_FORMAT_JOIN = false;
 
     public static void main (String arg[]) throws SQLException{
@@ -255,7 +255,7 @@ public class RisingWaveConnect {
                """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery3); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery24); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -265,7 +265,7 @@ public class RisingWaveConnect {
                 String windowStart = rs.getTimestamp("window_start").toString().replace(".0","").replace(":00","");
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
                 l = windowStart + ',' + windowEnd + ',';
-                String avgStress = String.valueOf(rs.getInt("max_stress"));
+                String avgStress = String.valueOf(rs.getInt("numberOfEvents"));
                 l = l + avgStress;
             } else if (QUERY_RESULT_FORMAT_JOIN){
                 String stressTs = rs.getTimestamp("stressTs").toString().replace(".0","").replace(":00","");
@@ -280,12 +280,12 @@ public class RisingWaveConnect {
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","").replace(":00","");
                 l = windowStart + ',' + windowEnd + ',';
                 String id = String.valueOf(rs.getInt("id"));
-                String maxStress = String.valueOf(rs.getInt("max_stress"));
+                String maxStress = String.valueOf(rs.getInt("numberOfEvents"));
                 l = l +  id + ',' + maxStress;
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/output3.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output24.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
