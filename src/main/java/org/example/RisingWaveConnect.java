@@ -41,10 +41,22 @@ public class RisingWaveConnect {
 
         String sqlQuery3 =
                 """
-                        SELECT window_start, window_end, max(stressLevel) as max_stress
-                                FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, max(stressLevel) AS max_stress
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM stressStream
+                        )
+                        GROUP BY window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -68,10 +80,22 @@ public class RisingWaveConnect {
 
         String sqlQuery6 =
                 """
-                        SELECT window_start, window_end, id, max(stressLevel) as max_stress
-                        FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, id, max(stressLevel) AS max_stress
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM stressStream
+                        )
+                        GROUP BY id, window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -96,10 +120,22 @@ public class RisingWaveConnect {
 
         String sqlQuery9 =
                 """
-                        SELECT window_start, window_end, min(stressLevel) as min_stress
-                                FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, min(stressLevel) AS min_stress
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM stressStream
+                        )
+                        GROUP BY window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -123,10 +159,22 @@ public class RisingWaveConnect {
 
         String sqlQuery12 =
                 """
-                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
-                        FROM HOP (stressStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, id, min(stressLevel) AS min_stress
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM stressStream
+                        )
+                        GROUP BY id, window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -150,10 +198,22 @@ public class RisingWaveConnect {
 
         String sqlQuery15 =
                 """
-                        SELECT window_start, window_end, avg(weight) as avg_weight
-                                FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, avg(weight) as avg_weight
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM weightStream
+                        )
+                        GROUP BY window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -177,10 +237,22 @@ public class RisingWaveConnect {
 
         String sqlQuery18 =
                 """
-                        SELECT window_start, window_end, id, avg(weight) as avg_weight
-                        FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, id, avg(weight) as avg_weight
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM weightStream
+                        )
+                        GROUP BY id, window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -204,10 +276,22 @@ public class RisingWaveConnect {
 
         String sqlQuery21 =
                 """
-                        SELECT window_start, window_end, count(*) as numberOfEvents
-                                FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, count(*) as numberOfEvents
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY 1 ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM weightStream
+                        )
+                        GROUP BY window_start
+                        ORDER BY window_start;
                 """
                 ;
 
@@ -231,10 +315,22 @@ public class RisingWaveConnect {
 
         String sqlQuery24 =
                 """
-                        SELECT window_start, window_end, id, count(*) as numberOfEvents
-                        FROM HOP (weightStream, timestamp, INTERVAL '1 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        SELECT
+                            window_start, window_end, id, count(*) as numberOfEvents
+                        FROM (
+                            SELECT
+                                first_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_start,
+                                last_value(timestamp) OVER (
+                                    PARTITION BY id ORDER BY timestamp
+                                    SESSION WITH GAP INTERVAL '5 SECONDS'
+                                ) AS window_end,
+                            FROM weightStream
+                        )
+                        GROUP BY id, window_start
+                        ORDER BY window_start;
                 """
                 ;
 
