@@ -275,7 +275,7 @@ public class RisingWaveConnect {
                """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery20); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery15); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -300,12 +300,12 @@ public class RisingWaveConnect {
                 String windowEnd = rs.getTimestamp("window_end").toString().replace(".0","");
                 l = windowStart + ',' + windowEnd + ',';
                 String id = String.valueOf(rs.getInt("id"));
-                String maxStress = String.valueOf(rs.getInt("numberOfEvents"));
+                String maxStress = String.valueOf(rs.getDouble("avgStress"));
                 l = l +  id + ',' + maxStress;
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/output20.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output15.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
