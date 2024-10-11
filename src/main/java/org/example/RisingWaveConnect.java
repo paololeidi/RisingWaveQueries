@@ -23,7 +23,7 @@ public class RisingWaveConnect {
 
         String sqlQuery1 =
                 """
-                        SELECT window_start, window_end, max(stressLevel) as max_stress
+                        SELECT window_start, window_end, MAX(stressLevel) AS max_stress
                                 FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
@@ -32,7 +32,7 @@ public class RisingWaveConnect {
 
         String sqlQuery2 =
                 """
-                        SELECT window_start, window_end, max(stressLevel) as max_stress
+                        SELECT window_start, window_end, MAX(stressLevel) AS max_stress
                                 FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
@@ -41,29 +41,17 @@ public class RisingWaveConnect {
 
         String sqlQuery3 =
                 """
-                        SELECT
-                            window_start, window_end, max(stressLevel) AS max_stress
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM stressStream
-                        )
-                        GROUP BY window_start
-                        ORDER BY window_start;
+                        SELECT window_start, window_end, id, MAX(stressLevel) AS max_stress
+                        FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
                 """
                 ;
 
         String sqlQuery4 =
                 """
-                        SELECT window_start, window_end, id, max(stressLevel) as max_stress
-                        FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                        SELECT window_start, window_end, id, MAX(stressLevel) AS max_stress
+                        FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                         GROUP BY window_start, window_end, id
                         ORDER BY window_start ASC;
                 """
@@ -71,39 +59,41 @@ public class RisingWaveConnect {
 
         String sqlQuery5 =
                 """
-                        SELECT window_start, window_end, id, max(stressLevel) as max_stress
-                        FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
+                        SELECT
+                                    window_start, window_end, id,
+                                    MAX(stressLevel) AS maxStress
+                                FROM (
+                                    SELECT
+                                        *,
+                                        first_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_start,
+                                        last_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_end
+                                    FROM stressStream
+                                )
+                                GROUP BY id, window_start, window_end
+                                ORDER BY id, window_start, window_end;
                 """
                 ;
+
 
         String sqlQuery6 =
                 """
-                        SELECT
-                            window_start, window_end, id, max(stressLevel) AS max_stress
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM stressStream
-                        )
-                        GROUP BY id, window_start
-                        ORDER BY window_start;
+                        SELECT window_start, window_end, MIN(stressLevel) AS min_stress
+                                FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                                GROUP BY window_start, window_end
+                                ORDER BY window_start ASC;
                 """
                 ;
 
-
         String sqlQuery7 =
                 """
-                        SELECT window_start, window_end, min(stressLevel) as min_stress
-                                FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
+                        SELECT window_start, window_end, MIN(stressLevel) AS min_stress
+                                FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
                 """
@@ -111,226 +101,160 @@ public class RisingWaveConnect {
 
         String sqlQuery8 =
                 """
-                        SELECT window_start, window_end, min(stressLevel) as min_stress
-                                FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
-                                GROUP BY window_start, window_end
-                                ORDER BY window_start ASC;
-                """
-                ;
-
-        String sqlQuery9 =
-                """
-                        SELECT
-                            window_start, window_end, min(stressLevel) AS min_stress
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM stressStream
-                        )
-                        GROUP BY window_start
-                        ORDER BY window_start;
-                """
-                ;
-
-        String sqlQuery10 =
-                """
-                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
+                        SELECT window_start, window_end, id, MIN(stressLevel) AS min_stress
                         FROM TUMBLE (stressStream, timestamp, INTERVAL '10 SECONDS')
                         GROUP BY window_start, window_end, id
                         ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery11 =
+        String sqlQuery9 =
                 """
-                        SELECT window_start, window_end, id, min(stressLevel) as min_stress
+                        SELECT window_start, window_end, id, MIN(stressLevel) AS min_stress
                         FROM HOP (stressStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                         GROUP BY window_start, window_end, id
                         ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery12 =
+        String sqlQuery10 =
                 """
                         SELECT
-                            window_start, window_end, id, min(stressLevel) AS min_stress
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM stressStream
-                        )
-                        GROUP BY id, window_start
-                        ORDER BY window_start;
+                                window_start, window_end, id,
+                                MIN(stressLevel) AS minStress
+                                FROM (
+                                    SELECT
+                                        *,
+                                        first_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_start,
+                                        last_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_end
+                                    FROM stressStream
+                                )
+                                GROUP BY id, window_start, window_end
+                                ORDER BY id, window_start, window_end;
                 """
                 ;
 
-        String sqlQuery13 =
+        String sqlQuery11 =
                 """
-                        SELECT window_start, window_end, avg(weight) as avg_weight
+                        SELECT window_start, window_end, AVG(weight) AS avg_weight
                                 FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery14 =
+        String sqlQuery12 =
                 """
-                        SELECT window_start, window_end, avg(weight) as avg_weight
+                        SELECT window_start, window_end, AVG(weight) AS avg_weight
                                 FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery13 =
+                """
+                        SELECT window_start, window_end, id, AVG(weight) AS avg_weight
+                        FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
+                """
+                ;
+
+        String sqlQuery14 =
+                """
+                        SELECT window_start, window_end, id, AVG(weight) AS avg_weight
+                        FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
+                        GROUP BY window_start, window_end, id
+                        ORDER BY window_start ASC;
                 """
                 ;
 
         String sqlQuery15 =
                 """
                         SELECT
-                            window_start, window_end, avg(weight) as avg_weight
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM weightStream
-                        )
-                        GROUP BY window_start
-                        ORDER BY window_start;
+                                window_start, window_end, id,
+                                AVG(weight) AS avgStress
+                                FROM (
+                                    SELECT
+                                        *,
+                                        first_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_start,
+                                        last_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_end
+                                    FROM weightStream
+                                )
+                                GROUP BY id, window_start, window_end
+                                ORDER BY id, window_start, window_end;
                 """
                 ;
 
         String sqlQuery16 =
                 """
-                        SELECT window_start, window_end, id, avg(weight) as avg_weight
-                        FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
-                """
-                ;
-
-        String sqlQuery17 =
-                """
-                        SELECT window_start, window_end, id, avg(weight) as avg_weight
-                        FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
-                        GROUP BY window_start, window_end, id
-                        ORDER BY window_start ASC;
-                """
-                ;
-
-        String sqlQuery18 =
-                """
-                        SELECT
-                            window_start, window_end, id, avg(weight) as avg_weight
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM weightStream
-                        )
-                        GROUP BY id, window_start
-                        ORDER BY window_start;
-                """
-                ;
-
-        String sqlQuery19 =
-                """
-                        SELECT window_start, window_end, count(*) as numberOfEvents
+                        SELECT window_start, window_end, COUNT(*) AS numberOfEvents
                                 FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery20 =
+        String sqlQuery17 =
                 """
-                        SELECT window_start, window_end, count(*) as numberOfEvents
+                        SELECT window_start, window_end, COUNT(*) AS numberOfEvents
                                 FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                                 GROUP BY window_start, window_end
                                 ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery21 =
+        String sqlQuery18 =
                 """
-                        SELECT
-                            window_start, window_end, count(*) as numberOfEvents
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY 1 ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM weightStream
-                        )
-                        GROUP BY window_start
-                        ORDER BY window_start;
-                """
-                ;
-
-        String sqlQuery22 =
-                """
-                        SELECT window_start, window_end, id, count(*) as numberOfEvents
+                        SELECT window_start, window_end, id, COUNT(*) AS numberOfEvents
                         FROM TUMBLE (weightStream, timestamp, INTERVAL '10 SECONDS')
                         GROUP BY window_start, window_end, id
                         ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery23 =
+        String sqlQuery19 =
                 """
-                        SELECT window_start, window_end, id, count(*) as numberOfEvents
+                        SELECT window_start, window_end, id, COUNT(*) AS numberOfEvents
                         FROM HOP (weightStream, timestamp, INTERVAL '5 SECONDS', INTERVAL '10 SECONDS')
                         GROUP BY window_start, window_end, id
                         ORDER BY window_start ASC;
                 """
                 ;
 
-        String sqlQuery24 =
+        String sqlQuery20 =
                 """
                         SELECT
-                            window_start, window_end, id, count(*) as numberOfEvents
-                        FROM (
-                            SELECT
-                                first_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_start,
-                                last_value(timestamp) OVER (
-                                    PARTITION BY id ORDER BY timestamp
-                                    SESSION WITH GAP INTERVAL '5 SECONDS'
-                                ) AS window_end,
-                            FROM weightStream
-                        )
-                        GROUP BY id, window_start
-                        ORDER BY window_start;
+                                window_start, window_end, id,
+                                COUNT(*) AS numberOfEvents
+                                FROM (
+                                    SELECT
+                                        *,
+                                        first_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_start,
+                                        last_value(timestamp) OVER (
+                                            PARTITION BY id ORDER BY timestamp
+                                            SESSION WITH GAP INTERVAL '3 SECONDS'
+                                        ) AS window_end
+                                    FROM weightStream
+                                )
+                                GROUP BY id, window_start, window_end
+                                ORDER BY id, window_start, window_end;
                 """
                 ;
 
@@ -351,7 +275,7 @@ public class RisingWaveConnect {
                """
                 ;
 
-        PreparedStatement st = conn.prepareStatement(sqlQuery24); //Define a query and pass it to a PreparedStatement object.
+        PreparedStatement st = conn.prepareStatement(sqlQuery20); //Define a query and pass it to a PreparedStatement object.
         ResultSet rs = st.executeQuery();
 
         while (rs.next()) {
@@ -381,7 +305,7 @@ public class RisingWaveConnect {
             }
             System.out.println(l);
             try {
-                FileWriter csvWriter = new FileWriter("Files/Output/output24.csv",true);
+                FileWriter csvWriter = new FileWriter("Files/Output/output20.csv",true);
                 csvWriter.append(l); // Writing the transformed string to the CSV file
                 csvWriter.append("\n");
                 csvWriter.flush();
