@@ -2,7 +2,7 @@ CREATE SOURCE stressStream (timestamp timestamp, id int, status varchar, stressL
                         WITH (
                            connector = 'kafka',
                            topic = 'stress',
-                           properties.bootstrap.server = 'host.docker.internal:9092',
+                           properties.bootstrap.server = 'broker:9092',
                            scan.startup.mode = 'latest'
                         ) FORMAT PLAIN ENCODE CSV (
                            without_header = 'true',
@@ -13,7 +13,7 @@ CREATE SOURCE weightStream (timestamp timestamp, id int, weight double)
                         WITH (
                            connector = 'kafka',
                            topic = 'weight',
-                           properties.bootstrap.server = 'host.docker.internal:9092',
+                           properties.bootstrap.server = 'broker:9092',
                            scan.startup.mode = 'latest'
                         ) FORMAT PLAIN ENCODE CSV (
                            without_header = 'true',
